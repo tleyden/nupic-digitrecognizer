@@ -32,14 +32,22 @@ class DigitRecognizer(object):
 
 
     def run(self):
+        '''
+        Run the digit recognizer 
+        '''
         trainingResults = self._train()
         print "Training results: %s" % trainingResults
         testingResults = self._test(trainingResults)
         print "Testing results: %s" % testingResults
     
-    def _train(self):
+    def _train(self, numIterations=80):
 
         trainingResults = {}
+        for i in xrange(numIterations):
+            self._trainIteration(trainingResults)
+        return trainingResults
+
+    def _trainIteration(self, trainingResults):
 
         # - For each image in the labeled training data 
         # - Present to spatial pooler
@@ -48,6 +56,8 @@ class DigitRecognizer(object):
         for filename in os.listdir(self.trainingDataDir):
             if not filename.endswith("png"):
                 continue
+
+            # TODO!! remove duplicated code: 
 
             print filename
             filenameWithPath = os.path.join(self.trainingDataDir, filename)
@@ -66,7 +76,45 @@ class DigitRecognizer(object):
 
             print "done spatial pooler"
 
-        return trainingResults
+
+    def _runSpatialPoolerOnFile(self, filenameWithPath):
+        image = Image.open(filenameWithPath)
+        inputArray = self._convertToInputArray(image)
+        activeColumns = np.zeros(self.columnNumber)
+        
+        print "Calling spatial pooler compute() with input: "
+        self._prettyPrintInputArray(inputArray)
+        
+        self.spatialPooler.compute(inputArray, True, activeColumns)
+        print "called compute(), activeColumns:" 
+        print activeColumns.nonzero()
+        return activeColumns
+
+
+    def _test(self, trainingResults):
+        
+        testingResults = {}
+
+        # - For each image in the labeled testing data 
+        # - Present to spatial pooler
+        # - Look in results dictionary created during training phase for exact match of this 
+        #   activecolumns result.  print out recognized image label or error
+
+        for filename in os.listdir(self.testingDataDir):
+            if not filename.endswith("png"):
+                continue
+
+            filenameWithPath = os.path.join(self.testingDataDir, filename)
+
+            activeColumns = self._runSpatialPoolerOnFile(filenameWithPath)
+
+            for key, savedActiveColumns in trainingResults.items():
+                if ((activeColumns == savedActiveColumns).all()):
+                    testingResults[key] = True 
+                else:
+                    testingResults[key] = False 
+
+        return testingResults
 
 
     def _prettyPrintInputArray(self, inputArray):
@@ -91,9 +139,6 @@ class DigitRecognizer(object):
 
         return inputArray
 
-
-    def _test(self, trainingResults):
-        pass
 
 
 if __name__ == "__main__":
