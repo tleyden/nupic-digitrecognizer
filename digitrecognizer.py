@@ -11,14 +11,31 @@ class DigitRecognizer(object):
         self.trainingDataDir = trainingDataDir
         self.testingDataDir = testingDataDir
         self.inputShape = (28, 28)
-        self.columnDimensions = (64, 64)
+        self.columnDimensions = (56, 56)
         self.columnNumber = np.array(self.columnDimensions).prod()
         self.inputSize = np.array(self.inputShape).prod()
         self.spatialPooler = self._initSpatialPooler()
 
     def _initSpatialPooler(self):
 
+        '''
+      potentialRadius = 10000, # Ensures 100% potential pool
+      potentialPct = 1, # Neurons can connect to 100% of input
+      globalInhibition = True,
+      numActiveColumnsPerInhArea = 1, # Only one feature active at a time
+      # All input activity can contribute to feature output
+      stimulusThreshold = 0,
+      synPermInactiveDec = 0.01,
+      synPermActiveInc = 0.1,
+      synPermConnected = 0.1, # Connected threshold
+      maxBoost = 3,
+      seed = 1956, # The seed that Grok uses
+      spVerbosity = 1)
+
+        '''
+
         print "Creating spatial pooler .. go check twitter"
+
         spatialPooler = SP(
             self.inputSize,   
             self.columnDimensions,
@@ -26,6 +43,25 @@ class DigitRecognizer(object):
             numActiveColumnsPerInhArea = int(0.02*self.columnNumber),
             globalInhibition = True,
             synPermActiveInc = 0.01
+        )
+
+        # experimenting with different parameters
+        spatialPoolerAlternative = SP(
+            self.inputSize,   
+            self.columnDimensions,
+            # potentialRadius = self.inputSize,
+            potentialRadius = 10000, # Ensures 100% potential pool
+            potentialPct = 1, # Neurons can connect to 100% of input
+
+            numActiveColumnsPerInhArea = int(0.02*self.columnNumber),
+            globalInhibition = True,
+            # All input activity can contribute to feature output
+            stimulusThreshold = 0,
+            synPermInactiveDec = 0.01,
+            synPermActiveInc = 0.1,
+            synPermConnected = 0.1, # Connected threshold
+            maxBoost = 3
+            # synPermActiveInc = 0.01
         )
         print "Spatial pooler is operational."
         return spatialPooler
@@ -57,20 +93,10 @@ class DigitRecognizer(object):
             if not filename.endswith("png"):
                 continue
 
-            # TODO!! remove duplicated code: 
-
-            print filename
             filenameWithPath = os.path.join(self.trainingDataDir, filename)
-            image = Image.open(filenameWithPath)
-            inputArray = self._convertToInputArray(image)
-            activeColumns = np.zeros(self.columnNumber)
+            print filenameWithPath
 
-            print "Calling spatial pooler compute() with input: "
-            self._prettyPrintInputArray(inputArray)
-
-            self.spatialPooler.compute(inputArray, True, activeColumns)
-            print "called compute(), activeColumns:" 
-            print activeColumns.nonzero()
+            activeColumns = self._runSpatialPoolerOnFile(filenameWithPath)
 
             trainingResults[filename] = activeColumns
 
@@ -105,6 +131,7 @@ class DigitRecognizer(object):
                 continue
 
             filenameWithPath = os.path.join(self.testingDataDir, filename)
+            print filenameWithPath
 
             activeColumns = self._runSpatialPoolerOnFile(filenameWithPath)
 
@@ -112,7 +139,7 @@ class DigitRecognizer(object):
                 if ((activeColumns == savedActiveColumns).all()):
                     testingResults[key] = True 
                 else:
-                    testingResults[key] = False 
+                    testingResults[key] = (activeColumns == savedActiveColumns)
 
         return testingResults
 
