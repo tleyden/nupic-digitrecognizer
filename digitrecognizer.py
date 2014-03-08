@@ -76,7 +76,7 @@ class DigitRecognizer(object):
         testingResults = self._test(trainingResults)
         print "Testing results: %s" % testingResults
     
-    def _train(self, numIterations=80):
+    def _train(self, numIterations=30):
 
         trainingResults = {}
         for i in xrange(numIterations):
@@ -135,11 +135,12 @@ class DigitRecognizer(object):
 
             activeColumns = self._runSpatialPoolerOnFile(filenameWithPath)
 
-            for key, savedActiveColumns in trainingResults.items():
-                if ((activeColumns == savedActiveColumns).all()):
-                    testingResults[key] = True 
-                else:
-                    testingResults[key] = (activeColumns == savedActiveColumns)
+            savedActiveColumns = trainingResults[filename]
+            if ((activeColumns == savedActiveColumns).all()):
+                testingResults[filename] = True 
+            else:
+                testingResults[filename] = False
+
 
         return testingResults
 
@@ -170,7 +171,7 @@ class DigitRecognizer(object):
 
 if __name__ == "__main__":
     _trainingDataDir = os.path.join("data", "training")
-    _testingDataDir = os.path.join("data", "testing")
+    _testingDataDir = os.path.join("data", "testing-easy")
     digitRecognizer = DigitRecognizer(_trainingDataDir, _testingDataDir)
     digitRecognizer.run()
 
