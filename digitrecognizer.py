@@ -64,7 +64,7 @@ class DigitRecognizer(object):
             # synPermActiveInc = 0.01
         )
         print "Spatial pooler is operational."
-        return spatialPooler
+        return spatialPoolerAlternative
 
 
     def run(self):
@@ -76,7 +76,7 @@ class DigitRecognizer(object):
         testingResults = self._test(trainingResults)
         print "Testing results: %s" % testingResults
     
-    def _train(self, numIterations=30):
+    def _train(self, numIterations=100):
 
         trainingResults = {}
         for i in xrange(numIterations):
@@ -171,7 +171,7 @@ class DigitRecognizer(object):
 
 if __name__ == "__main__":
     _trainingDataDir = os.path.join("data", "training")
-    _testingDataDir = os.path.join("data", "testing-easy")
+    _testingDataDir = os.path.join("data", "testing")
     digitRecognizer = DigitRecognizer(_trainingDataDir, _testingDataDir)
     digitRecognizer.run()
 
