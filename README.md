@@ -1,25 +1,50 @@
 
-Example of using nupic to recognize digits.
+Use the NuPIC Spatial Pooler to recognize digits.
 
-There is a set of labeled training data and a set of labeled test data.  You can also provide your own image and see if it recognizes it.
+The spatial pooler is trained on digits like:
 
-It uses the spatial pooler directly.
+![](https://github.com/tleyden/nupic-digitrecognizer/blob/master/data/training/9.png?raw=true)
 
-Here is the algorithm:
+and then tested with noisy version of the digits:
 
-Training phase:
+![](https://github.com/tleyden/nupic-digitrecognizer/blob/master/data/testing/9.png?raw=true)
 
-- For each image in the labeled training data 
-
-- Present to spatial pooler
-
-- Save the activecolumns returned by the spatial pooler in results dictionary, keyed on the image label (eg, "1")
-
-Testing phase:
+# Training phase
 
 - For each image in the labeled training data 
 
-- Present to spatial pooler and get activecolumns
+  - Present to spatial pooler
 
-- Look in results dictionary created during training phase for exact match of this activecolumns result.  print out recognized image label or error
+  - Save the activecolumns SDR returned by the spatial pooler in results dictionary, keyed on the image name (eg, "1.png")
 
+# Testing phase
+
+- For each image in the labeled testing data 
+
+  - Present to spatial pooler and get activecolumns SDR
+
+  - Get the saved activecolumns SDR for this image label (eg, "1.png") from the results dictionary from training step
+
+  - Make sure that the SDR returned from the test image is an *exact match* with the training SDR
+
+# Pre-requisites
+
+* Install NuPIC
+* Install Pillow
+
+# Running
+
+```
+$ python digitrecognizer.py
+```
+
+It will throw an exception if any of the digits are not recognized in either testing set.
+
+# Future extensions
+
+* Implement spatial invariance (eg, if these digit inputs are shifted a few pixels then it won't match)
+
+# Reference
+
+* [Question regarding spatial poolers in context of digit recognition](http://lists.numenta.org/pipermail/nupic_lists.numenta.org/2014-March/003121.html)
+* [Training on Handwritten Digit Dataset using CLA](http://lists.numenta.org/pipermail/nupic_lists.numenta.org/2013-July/000538.html)
