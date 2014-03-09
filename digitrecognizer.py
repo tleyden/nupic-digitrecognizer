@@ -18,7 +18,7 @@ class DigitRecognizer(object):
 
     def _initSpatialPooler(self):
 
-        print "Creating spatial pooler .. go check twitter"
+        print "Creating spatial pooler .."
 
         spatialPooler = SP(
             self.inputSize,   
@@ -45,6 +45,14 @@ class DigitRecognizer(object):
         print "Training results: %s" % trainingResults
         testingResults = self._test(trainingResults)
         print "Testing results: %s" % testingResults
+        
+        for filename, foundMatch in testingResults.items():
+            if not foundMatch:
+                msg = "Failed to match %s.  Test set: %s" % (filename, self.testingDataDir)
+                raise Exception(msg)
+
+        print "All test data in %s was matched!" % self.testingDataDir
+
     
     def _train(self, numIterations=100):
 
@@ -140,8 +148,15 @@ class DigitRecognizer(object):
 
 
 if __name__ == "__main__":
+
     _trainingDataDir = os.path.join("data", "training")
+
+    # first run it on the "easy" test set which has very little noise
+    _testingDataDirEasy = os.path.join("data", "testing-easy")
+    digitRecognizer = DigitRecognizer(_trainingDataDir, _testingDataDirEasy)
+    digitRecognizer.run()
+
+    # now run it on the test set that has more noise
     _testingDataDir = os.path.join("data", "testing")
     digitRecognizer = DigitRecognizer(_trainingDataDir, _testingDataDir)
     digitRecognizer.run()
-
