@@ -18,53 +18,23 @@ class DigitRecognizer(object):
 
     def _initSpatialPooler(self):
 
-        '''
-      potentialRadius = 10000, # Ensures 100% potential pool
-      potentialPct = 1, # Neurons can connect to 100% of input
-      globalInhibition = True,
-      numActiveColumnsPerInhArea = 1, # Only one feature active at a time
-      # All input activity can contribute to feature output
-      stimulusThreshold = 0,
-      synPermInactiveDec = 0.01,
-      synPermActiveInc = 0.1,
-      synPermConnected = 0.1, # Connected threshold
-      maxBoost = 3,
-      seed = 1956, # The seed that Grok uses
-      spVerbosity = 1)
-
-        '''
-
         print "Creating spatial pooler .. go check twitter"
 
         spatialPooler = SP(
             self.inputSize,   
             self.columnDimensions,
-            potentialRadius = self.inputSize,
             numActiveColumnsPerInhArea = int(0.02*self.columnNumber),
             globalInhibition = True,
-            synPermActiveInc = 0.01
+            synPermActiveInc = 0.01,
+            potentialPct = 1, # Essential parameter: Neurons can connect to 100% of input
+            potentialRadius = self.inputSize
+            # stimulusThreshold = 0,
+            # synPermInactiveDec = 0.01,
+            # synPermActiveInc = 0.1,
+            # synPermConnected = 0.1, # Connected threshold
+            # maxBoost = 3
         )
-
-        # experimenting with different parameters
-        spatialPoolerAlternative = SP(
-            self.inputSize,   
-            self.columnDimensions,
-            # potentialRadius = self.inputSize,
-            potentialRadius = 10000, # Ensures 100% potential pool
-            potentialPct = 1, # Neurons can connect to 100% of input
-
-            numActiveColumnsPerInhArea = int(0.02*self.columnNumber),
-            globalInhibition = True,
-            # All input activity can contribute to feature output
-            stimulusThreshold = 0,
-            synPermInactiveDec = 0.01,
-            synPermActiveInc = 0.1,
-            synPermConnected = 0.1, # Connected threshold
-            maxBoost = 3
-            # synPermActiveInc = 0.01
-        )
-        print "Spatial pooler is operational."
-        return spatialPoolerAlternative
+        return spatialPooler
 
 
     def run(self):
