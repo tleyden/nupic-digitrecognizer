@@ -11,7 +11,8 @@ class DigitRecognizer(object):
         self.trainingDataDir = trainingDataDir
         self.testingDataDir = testingDataDir
         self.inputShape = (28, 28)
-        self.columnDimensions = (56, 56)
+        #self.columnDimensions = (56, 56)
+        self.columnDimensions = (56 * 56)
         self.columnNumber = np.array(self.columnDimensions).prod()
         self.inputSize = np.array(self.inputShape).prod()
         self.spatialPooler = self._initSpatialPooler()
