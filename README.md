@@ -1,5 +1,5 @@
 
-Use the NuPIC Spatial Pooler to recognize digits.
+Use the [NuPIC](http://numenta.org/nupic.html) Spatial Pooler to recognize digits.
 
 The spatial pooler is trained on digits like:
 
